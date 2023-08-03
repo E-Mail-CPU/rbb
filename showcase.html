@@ -6,17 +6,76 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chromion</title>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
     <link rel="icon" href="Log.gif" type="image/x-icon" alt="ICON">
 </head> 
-<script language="JavaScript">
-     var passwd = "top100"
-     var pass = window.prompt("Please put in your password!")
-     if (passwd==pass) {}
-     else {
-        window.alert("Wrong password!")
-        location.reload()
-     } 
+<script language="JavaScript" >
+    // Array to store logged-in users' tokens
+    var loggedInUsers = [];
 
+    // Function to check if a user is already logged in
+    function isUserLoggedIn(ipAddress) {
+        return loggedInUsers.includes(ipAddress);
+    }
+
+    // Function to generate a unique token based on IP and random string
+    function generateToken() {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const tokenLength = 32;
+        let token = '';
+
+        // Generate a random string
+        for (let i = 0; i < tokenLength; i++) {
+            const randomIndex = Math.floor(Math.random() * characters.length);
+            token += characters.charAt(randomIndex);
+        }
+
+        // Append the user's IP address
+        const ipAddress = Cookies.get('userIpAddress') || 'unknown';
+        token += ipAddress;
+
+        return token;
+    }
+
+    // Set the user's IP address as a cookie
+    function setUserIpAddress() {
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                const ipAddress = data.ip;
+                Cookies.set('userIpAddress', ipAddress);
+                if (!isUserLoggedIn(ipAddress)) {
+                    loggedInUsers.push(ipAddress);
+                    console.log('User logged in:', ipAddress);
+                } else {
+                    console.log('User is already logged in:', ipAddress);
+                }
+            });
+    }
+
+    // Check if user is already logged in
+    const isLoggedIn = Cookies.get('isLoggedIn') === 'true';
+
+    if (!isLoggedIn) {
+        var passwd = "top100";
+        var pass = window.prompt("Please put in your password!");
+
+        if (passwd === pass) {
+            Cookies.set('isLoggedIn', 'true');
+            setUserIpAddress();
+            const generatedToken = generateToken();
+            Cookies.set('Token', generatedToken, { expires: 1/24 });
+            console.log('User logged in and unique token generated.');
+        } else {
+            window.alert("Wrong password!");
+            location.reload();
+        }
+    } else {
+        console.log('User is already logged in.');
+    }
+
+
+    document.addEventListener('contextmenu', event => event.preventDefault());
 </script>
 <body>
     <div class="header">
@@ -49,7 +108,7 @@
         </button>
     </div>
     <div>
-        <button class="adi" onclick="window.location.href='https://www.radioeins.de/'">
+        <button class="adi" onclick="window.location.href='https://radioeins.de'">
             <video src="Radio.mp4" autoplay loop muted class="rad"></video>
             <br>
             <a class="h">Beim Radio bau</a>
@@ -65,7 +124,7 @@
         </button>
     </div>
     <div>
-        <button class="stor" onclick="window.location.href='https://store.steampowered.com/app/573090/Stormworks_Build_and_Rescue/'">
+        <button class="stor" onclick="window.location.href='https://store.steampowered.com/app/573090/Stormworks_Build_and_Rescue'">
             <div class="sketchfab-embed-wrapper"> <iframe title="Kishi" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="550" height="400" src="https://sketchfab.com/models/4b182dc55ebb48c399f353c71899ecf8/embed?autospin=1&autostart=1&ui_theme=dark"> </iframe> </div>
             <br>
             <a class="h">Ein Flugzeug von einem</a>
